@@ -9,3 +9,4 @@ variable "secret_key" {
   sensitive   = true
   description = "AWS_SECRET_ACCESS_KEY"
 }
+variable "ssh_key_name" {}
