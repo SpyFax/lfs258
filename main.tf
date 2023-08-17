@@ -75,6 +75,16 @@ resource "aws_instance" "main" {
   associate_public_ip_address = true
   subnet_id                   = aws_subnet.dmz.id
   key_name                    = var.ssh_key_name
+  root_block_device  {
+      volume_size = 30
+    }
+}
+resource "aws_instance" "worker" {
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = "t2.large"
+  vpc_security_group_ids      = [aws_security_group.base.id]
+  subnet_id                   = aws_subnet.dmz.id
+  key_name                    = var.ssh_key_name
 }
 
 resource "aws_security_group" "base" {
@@ -95,6 +105,13 @@ resource "aws_security_group" "base" {
     protocol    = "tcp"
     cidr_blocks = ["0.0.0.0/0"]
   }
+
+  egress {
+      from_port = 0
+      to_port = 0
+      protocol = "-1"
+      cidr_blocks = ["10.0.1.0/24"]
+    }
 
   # Allow inbound SSH
   ingress {
