@@ -1,0 +1,7 @@
+[default]
+${ public_ip } ansible_user=${ admin_user }
+
+[worker]
+%{ for value in k8s_hostnames ~}
+${ value.id } ansible_host=${ value.public_ip}
+%{ endfor ~}

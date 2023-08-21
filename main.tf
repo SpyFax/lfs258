@@ -149,3 +149,14 @@ resource "aws_eip_association" "main_eip_assoc" {
   allocation_id = aws_eip.main_eip.id
 }
 
+resource "local_file" "ansible_inventory" {
+  content = templatefile("${path.cwd}/ansible/inventory.tftpl",
+    {
+      public_ip     = aws_eip.main_eip.public_ip
+      admin_user    = "ubuntu"
+      k8s_hostnames = aws_instance.worker
+    }
+  )
+  filename        = "${path.cwd}/ansible/inventory"
+  file_permission = "0660"
+}
