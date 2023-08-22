@@ -1,0 +1,11 @@
+---
+- name: "Create kubernetes cluster"
+  become: true
+  become_method: sudo
+  debugger: never
+  hosts: all
+  tasks:
+    - name: "Prepare system"
+      ansible.builtin.import_role:
+        name: init
+

@@ -1,0 +1,62 @@
+---
+- name: "Updating the guest operating system."
+  ansible.builtin.apt:
+    force_apt_get: true
+    name: "*"
+    state: latest     # noqa package-latest
+    update_cache: true
+    only_upgrade: true
+
+- name: "Installing additional packages."
+  ansible.builtin.apt:
+    name:
+      - curl
+      - apt-transport-https
+      - vim
+      - git
+      - wget
+      - software-properties-common
+      - lsb-release
+      - ca-certificates
+    state: present
+
+- name: "Create k8s moudle folder"
+  ansible.builtin.file:
+    path: /etc/modules-load.d
+    state: directory
+    recurse: true
+
+- name: "Create k8s.conf"
+  ansible.builtin.template:
+    src: k8s.conf.j2
+    dest: /etc/modules-load.d/k8s.conf
+    mode: 0644
+
+- name: "Create sysctl.d folder"
+  ansible.builtin.file:
+    path: /etc/sysctl.d
+    state: directory
+    recurse: true
+
+- name: "K8S conf for sysctl"
+  ansible.builtin.template:
+    src: sysctl_k8s.conf.j2
+    dest: /etc/sysctl.d/k8s.conf
+    mode: 0644
+
+- name: "Turn off swap"
+  ansible.builtin.lineinfile:
+    path: /etc/fstab
+    regexp: (^[^#].*swap.*$)
+    line: '# \1'
+    state: present
+    backup: true
+    backrefs: true
+
+- name: "Apply changes"
+  ansible.builtin.shell: |
+    swapoff -a
+    modprobe overlay
+    modprobe br_netfilter
+    sysctl --system
+
