@@ -9,3 +9,6 @@
       ansible.builtin.import_role:
         name: init
 
+    - name: "Install container runtime"
+      ansible.builtin.import_role:
+        name: cri
