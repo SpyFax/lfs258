@@ -12,3 +12,7 @@
     - name: "Install container runtime"
       ansible.builtin.import_role:
         name: cri
+
+    - name: "Install kubernetes"
+      ansible.builtin.import_role:
+        name: kubernetes

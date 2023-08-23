@@ -1,0 +1,19 @@
+- name: "Add apt repo"
+  block:
+    - name: "Add Google Cloud public signing key"
+      ansible.builtin.get_url:
+        url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
+        dest: "{{ k8s_gpg_key }}"
+        mode: 0644
+    - name: "Add Kubernetes apt repository"
+      ansible.builtin.apt_repository:
+        repo: "deb [signed-by={{ k8s_gpg_key }}] https://apt.kubernetes.io/ kubernetes-xenial main"
+        state: present
+
+- name: "Install kubelet and kubeadm"
+  ansible.builtin.apt:
+    name:
+      - "kubelet={{ kubernetes_version }}"
+      - "kubeadm={{ kubernetes_version }}"
+    state: present
+    update_cache: true
