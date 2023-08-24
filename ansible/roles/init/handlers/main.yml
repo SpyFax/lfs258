@@ -1,0 +1,7 @@
+---
+- name: "Apply changes"
+  ansible.builtin.shell: |
+    swapoff -a
+    modprobe overlay
+    modprobe br_netfilter
+    sysctl --system
