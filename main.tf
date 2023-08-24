@@ -154,6 +154,7 @@ resource "local_file" "ansible_inventory" {
     {
       public_ip     = aws_eip.main_eip.public_ip
       admin_user    = "ubuntu"
+      master_ip     = aws_instance.main.private_ip
       k8s_hostnames = aws_instance.worker
     }
   )

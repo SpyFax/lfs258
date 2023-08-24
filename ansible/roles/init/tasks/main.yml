@@ -60,3 +60,8 @@
     modprobe br_netfilter
     sysctl --system
 
+- name: "Add an local DNS alias for cp server."
+  ansible.builtin.lineinfile:
+    path: /etc/hosts
+    line: "{{ master_ip }}  k8scp"
+    state: present
