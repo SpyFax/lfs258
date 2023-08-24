@@ -4,7 +4,7 @@
       ansible.builtin.get_url:
         url: https://packages.cloud.google.com/apt/doc/apt-key.gpg
         dest: "{{ k8s_gpg_key }}"
-        mode: 0644
+        mode: "0644"
     - name: "Add Kubernetes apt repository"
       ansible.builtin.apt_repository:
         repo: "deb [signed-by={{ k8s_gpg_key }}] https://apt.kubernetes.io/ kubernetes-xenial main"
@@ -15,5 +15,15 @@
     name:
       - "kubelet={{ kubernetes_version }}"
       - "kubeadm={{ kubernetes_version }}"
+      - "kubectl={{ kubernetes_version }}"
     state: present
     update_cache: true
+
+- name: "Prevent kubernetes being upgraded"
+  ansible.builtin.dpkg_selections:
+    name: "{{ item }}"
+    selection: hold
+  loop:
+    - kubelet
+    - kubeadm
+    - kubectl
