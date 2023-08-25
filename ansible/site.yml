@@ -16,3 +16,13 @@
     - name: "Install kubernetes"
       ansible.builtin.import_role:
         name: kubernetes
+
+- name: "Set up kubernetes cluster"
+  become: true
+  gather_facts: false
+  hosts: control_plane
+  tasks:
+    - name: "Initialize the cluster"
+      ansible.builtin.import_role:
+        name: cp
+  tags: cp
