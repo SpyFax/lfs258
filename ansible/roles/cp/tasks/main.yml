@@ -43,6 +43,7 @@
     name:
       - python3-pip
       - python-is-python3
+      - bash-completion
     state: present
 - name: "Install pip packages for ansible kubernetes"
   ansible.builtin.pip:
@@ -63,3 +64,13 @@
     state: present
     src: ~/calico.yaml
     kubeconfig: /etc/kubernetes/admin.conf
+
+- name: Add kubectl autocomplete
+  become_user: "{{ ansible_env.SUDO_USER }}"
+  ansible.builtin.blockinfile:
+    path: "~/.bashrc"
+    block: |
+      source <(kubectl completion bash)
+      alias k=kubectl
+      complete -o default -F __start_kubectl k
+
