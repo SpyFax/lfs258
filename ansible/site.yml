@@ -1,7 +1,6 @@
 ---
 - name: "Create kubernetes cluster"
   become: true
-  become_method: sudo
   debugger: never
   hosts: all
   tasks:
@@ -26,3 +25,30 @@
       ansible.builtin.import_role:
         name: cp
   tags: cp
+
+- name: "Get command to joins the cluster"
+  become: true
+  hosts: control_plane
+  gather_facts: false
+  tags: worker
+  tasks:
+    - name: "Get join cmd"
+      ansible.builtin.shell:
+        cmd: kubeadm token create --print-join-command
+      register: join_cmd
+
+- name: "Worker join to cluster"
+  become: true
+  hosts: worker
+  gather_facts: false
+  tags: worker
+  tasks:
+    # - name: "Reset worker"
+    #   ansible.builtin.shell:
+    #     cmd: kubeadm reset -f
+
+    - name: "Join cluster"
+      ansible.builtin.shell:
+        cmd: "{{ hostvars[groups['control_plane'][0]].join_cmd.stdout_lines[0] }}"
+        creates: /etc/kubernetes/kubelet.conf
+  
