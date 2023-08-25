@@ -37,3 +37,29 @@
     group: "{{ ansible_env.SUDO_GID }}"
     mode: "0600"
   when: k8s_conf.stat.exists
+
+- name: "Install pip"
+  ansible.builtin.apt:
+    name:
+      - python3-pip
+      - python-is-python3
+    state: present
+- name: "Install pip packages for ansible kubernetes"
+  ansible.builtin.pip:
+    name:
+      - kubernetes
+      - PyYAML
+      - jsonpatch
+    state: present
+
+- name: Download calico CNI to the cluster.
+  ansible.builtin.get_url:
+    url: https://raw.githubusercontent.com/projectcalico/calico/v3.25.0/manifests/calico.yaml
+    dest: ~/calico.yaml
+    mode: '0664'
+
+- name: Apply calico CNI to the cluster.
+  kubernetes.core.k8s:
+    state: present
+    src: ~/calico.yaml
+    kubeconfig: /etc/kubernetes/admin.conf
