@@ -135,6 +135,13 @@ resource "aws_security_group" "base" {
     cidr_blocks = ["0.0.0.0/0"]
     self        = false
   }
+  # Allow NodePort Services
+  ingress {
+    from_port   = 30000
+    to_port     = 32767
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 
   vpc_id = aws_vpc.main.id
 
