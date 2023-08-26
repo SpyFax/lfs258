@@ -78,6 +78,12 @@ resource "aws_instance" "main" {
   root_block_device {
     volume_size = 30
   }
+  user_data = <<-EOF
+    #!/bin/bash
+    echo "Setting hostname..."
+    hostnamectl set-hostname "k8scp"
+    echo "Hostname set to: $(hostname)"
+    EOF
   provisioner "local-exec" {
     command = "ssh-keygen -R '${self.public_ip}'"
   }
@@ -90,6 +96,12 @@ resource "aws_instance" "worker" {
   subnet_id                   = aws_subnet.dmz.id
   key_name                    = var.ssh_key_name
   associate_public_ip_address = true
+  user_data                   = <<-EOF
+    #!/bin/bash
+    echo "Setting hostname..."
+    hostnamectl set-hostname "${format("worker-%02d", count.index + 1)}"
+    echo "Hostname set to: $(hostname)"
+    EOF
   provisioner "local-exec" {
     command = "ssh-keygen -R '${self.public_ip}'"
   }
