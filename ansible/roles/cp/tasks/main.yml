@@ -65,6 +65,23 @@
     src: ~/calico.yaml
     kubeconfig: /etc/kubernetes/admin.conf
 
+- name: Download LFS258 example YAML
+  become_user: "{{ ansible_env.SUDO_USER }}"
+  ansible.builtin.get_url:
+    url: "{{ lf258_yaml_file }}"
+    url_username: "{{ lf_training_user }}"
+    url_password: "{{ lf_training_pw }}"
+    checksum: "md5:{{ lf_file_md5 }}"
+    mode: "0600"
+    dest: "~/LFS258-SOLUTIONS.tar.xz"
+
+- name: Unarchive LFS258-SOLUTIONS
+  become_user: "{{ ansible_env.SUDO_USER }}"
+  ansible.builtin.unarchive:
+    src: "~/LFS258-SOLUTIONS.tar.xz"
+    dest: "~"
+    remote_src: true
+ 
 - name: Add kubectl autocomplete
   become_user: "{{ ansible_env.SUDO_USER }}"
   ansible.builtin.blockinfile:
@@ -73,4 +90,5 @@
       source <(kubectl completion bash)
       alias k=kubectl
       complete -o default -F __start_kubectl k
+      cd ~/LFS258/SOLUTIONS/
 

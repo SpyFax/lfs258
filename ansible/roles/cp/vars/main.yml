@@ -1,2 +1,6 @@
 ---
 kube_config: "/home/{{ ansible_env.SUDO_USER }}/.kube"
+lf258_yaml_file: "https://cm.lf.training/LFS258/LFS258_V2023-06-22_SOLUTIONS.tar.xz"
+lf_training_user: "LFtraining"
+lf_training_pw: "Penguin2014"
+lf_file_md5: "20914b720fd7a65dce4321b92273115a"
