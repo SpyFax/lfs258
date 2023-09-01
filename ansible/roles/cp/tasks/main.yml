@@ -82,7 +82,7 @@
     dest: "~"
     remote_src: true
  
-- name: Add kubectl autocomplete
+- name: Add kubectl&helm autocomplete
   become_user: "{{ ansible_env.SUDO_USER }}"
   ansible.builtin.blockinfile:
     path: "~/.bashrc"
@@ -91,4 +91,24 @@
       alias k=kubectl
       complete -o default -F __start_kubectl k
       cd ~/LFS258/SOLUTIONS/
+      source <(helm completion bash)
 
+- name: Download helm
+  ansible.builtin.get_url:
+    url: "https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz"
+    checksum: "sha256:https://get.helm.sh/helm-{{ helm_version }}-linux-amd64.tar.gz.sha256sum"
+    dest: /tmp/helm.tar.gz
+
+- name: Unarchive helm
+  ansible.builtin.unarchive:
+    remote_src: true
+    src: /tmp/helm.tar.gz
+    dest: /tmp
+    include: ["linux-amd64/helm"]
+
+- name: Move helm
+  ansible.builtin.copy:
+    src: /tmp/linux-amd64/helm
+    dest: /usr/local/bin/helm
+    remote_src: true
+    mode: "0755"
