@@ -107,6 +107,25 @@ resource "aws_instance" "worker" {
   }
 }
 
+resource "aws_instance" "cp" {
+  count                       = 3
+  ami                         = data.aws_ami.ubuntu.id
+  instance_type               = "t2.medium"
+  vpc_security_group_ids      = [aws_security_group.base.id]
+  subnet_id                   = aws_subnet.dmz.id
+  key_name                    = var.ssh_key_name
+  associate_public_ip_address = true
+  user_data                   = <<-EOF
+    #!/bin/bash
+    echo "Setting hostname..."
+    hostnamectl set-hostname "${format("cp-%02d", count.index + 1)}"
+    echo "Hostname set to: $(hostname)"
+    EOF
+  provisioner "local-exec" {
+    command = "ssh-keygen -R '${self.public_ip}'"
+  }
+}
+
 resource "aws_security_group" "base" {
   name = "Base SG"
 
@@ -155,6 +174,13 @@ resource "aws_security_group" "base" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 
+  # Allow NodePort Services
+  ingress {
+    from_port   = 9999
+    to_port     = 9999
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
   vpc_id = aws_vpc.main.id
 
 }
@@ -175,6 +201,7 @@ resource "local_file" "ansible_inventory" {
       admin_user    = "ubuntu"
       master_ip     = aws_instance.main.private_ip
       k8s_hostnames = aws_instance.worker
+      control_plane = aws_instance.cp
     }
   )
   filename        = "${path.cwd}/ansible/inventory"

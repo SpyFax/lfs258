@@ -1,0 +1,12 @@
+---
+- name: Update hosts file
+  become: true
+  debugger: never
+  hosts: all
+  tasks:
+    - name: update hosts
+      ansible.builtin.lineinfile:
+        dest: /etc/hosts
+        line: '10.0.1.133  k8scp'
+        regexp: '^.*k8scp'
+        state: present
